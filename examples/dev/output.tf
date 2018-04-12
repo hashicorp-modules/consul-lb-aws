@@ -6,6 +6,6 @@ output "consul_lb_dns" {
   value = "${module.consul_lb_aws.consul_lb_dns}"
 }
 
-output "consul_http_8500_target_group" {
-  value = "${module.consul_lb_aws.consul_http_8500_target_group}"
+output "consul_tg_http_8500_arn" {
+  value = "${module.consul_lb_aws.consul_tg_http_8500_arn}"
 }
