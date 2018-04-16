@@ -83,18 +83,18 @@ resource "aws_security_group_rule" "outbound_tcp" {
 }
 
 resource "random_id" "consul_lb_access_logs" {
-  count = "${var.create && var.lb_logs_enabled ? 1 : 0}"
+  count = "${var.create && !var.lb_bucket_override ? 1 : 0}"
 
-  byte_length = 8
+  byte_length = 4
   prefix      = "${format("%s-consul-lb-access-logs-", var.name)}"
 }
 
 data "aws_elb_service_account" "consul_lb_access_logs" {
-  count = "${var.create && var.lb_logs_enabled ? 1 : 0}"
+  count = "${var.create && !var.lb_bucket_override ? 1 : 0}"
 }
 
 resource "aws_s3_bucket" "consul_lb_access_logs" {
-  count = "${var.create && var.lb_logs_enabled ? 1 : 0}"
+  count = "${var.create && !var.lb_bucket_override ? 1 : 0}"
 
   bucket = "${random_id.consul_lb_access_logs.hex}"
   acl    = "private"
@@ -113,7 +113,7 @@ resource "aws_s3_bucket" "consul_lb_access_logs" {
       "Action": [
         "s3:PutObject"
       ],
-      "Resource": "arn:aws:s3:::${random_id.consul_lb_access_logs.hex}${var.lb_logs_prefix != "" ? format("//", var.lb_logs_prefix) : ""}/AWSLogs/*",
+      "Resource": "arn:aws:s3:::${random_id.consul_lb_access_logs.hex}${var.lb_bucket_prefix != "" ? format("//", var.lb_bucket_prefix) : ""}/AWSLogs/*",
       "Principal": {
         "AWS": [
           "${data.aws_elb_service_account.consul_lb_access_logs.arn}"
@@ -142,8 +142,8 @@ resource "aws_lb" "consul" {
   tags            = "${merge(var.tags, map("Name", format("%s-consul-lb", var.name)))}"
 
   access_logs {
-    bucket  = "${var.lb_logs_bucket != "" ? var.lb_logs_bucket : aws_s3_bucket.consul_lb_access_logs.id}"
-    prefix  = "${var.lb_logs_prefix}"
+    bucket  = "${var.lb_bucket_override ? var.lb_bucket : element(concat(aws_s3_bucket.consul_lb_access_logs.*.id, list("")), 0)}"
+    prefix  = "${var.lb_bucket_prefix}"
     enabled = "${var.lb_logs_enabled}"
   }
 }
