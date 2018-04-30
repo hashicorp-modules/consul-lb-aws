@@ -1,5 +1,5 @@
 module "consul_lb_aws" {
-  # source = "github.com/hashicorp-modules/consul-lb-aws?ref=f-refactor"
+  # source = "github.com/hashicorp-modules/consul-lb-aws"
   source = "../../../consul-lb-aws"
 
   create      = false
