@@ -9,6 +9,7 @@ resource "aws_security_group" "consul_lb" {
   description = "Security group for consul ${var.name} LB"
   vpc_id      = "${var.vpc_id}"
   tags        = "${merge(var.tags, map("Name", format("%s-consul-lb", var.name)))}"
+  description = "Consul lb ports: https://www.consul.io/docs/agent/options.html#ports"
 }
 
 resource "aws_security_group_rule" "consul_lb_http_80" {
@@ -19,7 +20,8 @@ resource "aws_security_group_rule" "consul_lb_http_80" {
   protocol          = "tcp"
   from_port         = 80
   to_port           = 80
-  cidr_blocks       = ["${split(",", var.is_internal_lb ? join(",", var.cidr_blocks) : "0.0.0.0/0")}"]
+  cidr_blocks       = ["${var.cidr_blocks}"]
+  description       = "Consul lb HTTP:80 port"
 }
 
 resource "aws_security_group_rule" "consul_lb_https_443" {
@@ -30,7 +32,8 @@ resource "aws_security_group_rule" "consul_lb_https_443" {
   protocol          = "tcp"
   from_port         = 443
   to_port           = 443
-  cidr_blocks       = ["${split(",", var.is_internal_lb ? join(",", var.cidr_blocks) : "0.0.0.0/0")}"]
+  cidr_blocks       = ["${var.cidr_blocks}"]
+  description       = "Consul lb HTTPS:443 port"
 }
 
 resource "aws_security_group_rule" "consul_lb_tcp_8500" {
@@ -41,7 +44,8 @@ resource "aws_security_group_rule" "consul_lb_tcp_8500" {
   protocol          = "tcp"
   from_port         = 8500
   to_port           = 8500
-  cidr_blocks       = ["${split(",", var.is_internal_lb ? join(",", var.cidr_blocks) : "0.0.0.0/0")}"]
+  cidr_blocks       = ["${var.cidr_blocks}"]
+  description       = "Consul lb TCP:8500 port"
 }
 
 resource "aws_security_group_rule" "consul_lb_tcp_8080" {
@@ -52,7 +56,8 @@ resource "aws_security_group_rule" "consul_lb_tcp_8080" {
   protocol          = "tcp"
   from_port         = 8080
   to_port           = 8080
-  cidr_blocks       = ["${split(",", var.is_internal_lb ? join(",", var.cidr_blocks) : "0.0.0.0/0")}"]
+  cidr_blocks       = ["${var.cidr_blocks}"]
+  description       = "Consul lb TCP:8080 SSL port"
 }
 
 resource "aws_security_group_rule" "outbound_tcp" {
@@ -64,6 +69,7 @@ resource "aws_security_group_rule" "outbound_tcp" {
   from_port         = 0
   to_port           = 65535
   cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Consul lb outbound TCP ports"
 }
 
 resource "random_id" "consul_lb_access_logs" {
@@ -120,7 +126,7 @@ resource "aws_lb" "consul" {
   count = "${var.create ? 1 : 0}"
 
   name            = "${random_id.consul_lb.hex}"
-  internal        = "${var.is_internal_lb ? true : false}"
+  internal        = "${var.is_internal_lb}"
   subnets         = ["${var.subnet_ids}"]
   security_groups = ["${aws_security_group.consul_lb.id}"]
   tags            = "${merge(var.tags, map("Name", format("%s-consul-lb", var.name)))}"
