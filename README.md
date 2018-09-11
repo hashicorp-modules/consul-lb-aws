@@ -17,8 +17,8 @@ Checkout [examples](./examples) for fully functioning examples.
 - `vpc_id`: [Required] VPC ID to provision LB in.
 - `cidr_blocks`: [Optional] CIDR blocks to provision LB across.
 - `subnet_ids`: [Optional] Subnet ID(s) to provision LB across.
-- `is_internal_lb`: [Optional] Is an internal load balancer, defaults to true.
-- `use_lb_cert`: [Optional] Use certificate passed in for the LB IAM listener, "lb_cert" and "lb_private_key" must be passed in if true, defaults to false.
+- `lb_internal`: [Optional] Is an internal load balancer, defaults to true.
+- `lb_use_cert`: [Optional] Use certificate passed in for the LB IAM listener, "lb_cert" and "lb_private_key" must be passed in if true, defaults to false.
 - `lb_cert`: [Optional] Certificate for LB IAM server certificate.
 - `lb_private_key`: [Optional] Private key for LB IAM server certificate.
 - `lb_cert_chain`: [Optional] Certificate chain for LB IAM server certificate.
@@ -31,10 +31,17 @@ Checkout [examples](./examples) for fully functioning examples.
 
 ## Outputs
 
-- `consul_lb_sg_id`: Consul load balancer security group ID.
-- `consul_tg_http_8500_arn`: Consul load balancer HTTP 8500 target group.
-- `consul_tg_https_8080_arn`: Consul load balancer HTTPS 8080 target group.
-- `consul_lb_dns`: Consul load balancer DNS name.
+- `consul_app_lb_sg_id`: Consul application load balancer security group ID.
+- `consul_lb_arn`: Consul application load balancer ARN.
+- `consul_app_lb_dns`: Consul load balancer DNS name.
+- `consul_network_lb_dns`: Consul load balancer DNS name.
+- `consul_tg_tcp_22_arn`: Consul network load balancer TCP 22 target group.
+- `consul_tg_tcp_8500_arn`: Consul network load balancer TCP 8500 target group.
+- `consul_tg_http_8500_arn`: Consul application load balancer HTTP 8500 target group.
+- `consul_tg_tcp_8080_arn`: Consul network load balancer TCP 8080 target group.
+- `consul_tg_https_8080_arn`: Consul application load balancer HTTPS 8080 target group.
+- `consul_tg_http_3030_arn`: Consul application load balancer HTTP 3030 target group.
+- `consul_tg_https_3030_arn`: Consul application load balancer HTTPS 3030 target group.
 
 ## Module Dependencies
 
